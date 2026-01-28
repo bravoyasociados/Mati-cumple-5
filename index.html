@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spider-Matí | Misión 5 Años</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --spidey-red: #b11313;
+            --spidey-blue: #1d3557;
+            --spidey-dark: #050b14;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            /* Fondo degradado Rojo y Azul */
+            background: radial-gradient(circle at center, var(--spidey-red) 0%, var(--spidey-dark) 100%);
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Canvas de Red de Moléculas */
+        #web-canvas-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+        }
+
+        #intro-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--spidey-dark); z-index: 1000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; text-align: center; transition: 1s ease-in-out;
+        }
+
+        .loader-container {
+            width: 80%; max-width: 300px; height: 12px;
+            background: #222; border-radius: 10px; margin-top: 20px;
+            display: none; overflow: hidden; border: 1px solid white;
+        }
+
+        .loader-bar { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; }
+
+        #spidey-walker {
+            position: fixed; width: 120px; z-index: 100;
+            pointer-events: none; transition: 0.1s linear;
+            top: 45%; left: -150px;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 60px 20px;
+            opacity: 0;
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .sec-left { transform: translateX(-100px); }
+        .sec-right { transform: translateX(100px); }
+        .sec-bottom { transform: translateY(100px); }
+
+        section.active { opacity: 1; transform: translate(0); }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px; width: 100%; max-width: 450px;
+            text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .foto-container {
+            width: 210px; height: 210px; margin: 0 auto 25px;
+            border-radius: 50%; position: relative; padding: 6px;
+            background: linear-gradient(45deg, #fff, var(--spidey-blue), #fff);
+            background-size: 200%;
+            animation: rotate-border 4s linear infinite;
+        }
+
+        .foto-container img {
+            width: 100%; height: 100%; border-radius: 50%;
+            object-fit: cover; border: 4px solid #000;
+        }
+
+        @keyframes rotate-border {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1, h2 { font-family: 'Bangers', cursive; color: #fff; text-shadow: 3px 3px 0 var(--spidey-blue); margin: 0; }
+        h1 { font-size: 4.5rem; letter-spacing: 2px; }
+        h2 { font-size: 2.2rem; margin-bottom: 15px; }
+
+        .btn {
+            display: inline-block; width: 90%; background: #fff; color: var(--spidey-dark);
+            text-decoration: none; padding: 18px 0; border-radius: 15px;
+            font-weight: 900; margin-top: 20px; transition: 0.3s;
+            border: none; text-transform: uppercase;
+        }
+        .btn:hover { transform: scale(1.05); background: var(--spidey-blue); color: white; }
+        .btn-wa { background: #25D366; color: white; }
+
+        #timer { font-family: 'Bangers'; font-size: 2.8rem; margin: 20px 0; color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="intro-overlay" onclick="iniciarCarga()">
+        <h1 id="intro-text">ESCANEANDO MULTIVERSO...</h1>
+        <p id="sub-text" style="font-weight: bold; letter-spacing: 2px;">[ TOCA PARA ACCEDER ]</p>
+        <div class="loader-container" id="loader-box"><div class="loader-bar" id="bar"></div></div>
+        <p id="loading-status" style="display: none; font-family: 'Bangers'; font-size: 1.5rem;">0%</p>
+    </div>
+
+    <canvas id="web-canvas-background"></canvas>
+
+    <img src="spiderman.png" id="spidey-walker" alt="Spider-Man">
+    <audio id="musica" loop><source src="cancion.mp3" type="audio/mpeg"></audio>
+
+    <section class="sec-left">
+        <div class="glass-card">
+            <div class="foto-container"><img src="mati.jpeg" alt="Matí"></div>
+            <h1>¡MATÍ!</h1>
+            <h2>Misión 5 Años</h2>
+            <p>Se ha detectado una anomalía: ¡Matí está creciendo! Requerimos a todos los héroes para la celebración.</p>
+            <div id="timer">00d 00h 00m 00s</div>
+        </div>
+    </section>
+
+    <section class="sec-right">
+        <div class="glass-card">
+            <h2>📍 COORDENADAS</h2>
+            <p>Sigue la señal para llegar a la Base Secreta:</p>
+            <a href="https://maps.app.goo.gl/tu-link-aqui" target="_blank" class="btn">ACTIVAR GPS</a>
+        </div>
+    </section>
+
+    <section class="sec-bottom">
+        <div class="glass-card">
+            <h2>📸 ARCHIVOS</h2>
+            <a href="https://drive.google.com/drive/folders/tu-link-aqui" target="_blank" class="btn" style="background: var(--spidey-blue); color: white;">SUBIR FOTOS</a>
+            <hr style="margin: 30px 0; opacity: 0.2;">
+            <h2>✅ REPORTE DE MISIÓN</h2>
+            <a href="https://wa.me/524272045993?text=¡Confirmado!%20El%20héroe%20se%20reporta%20listo%20para%20la%20misión%20de%20Matí%20🕷️" target="_blank" class="btn btn-wa">CONFIRMAR ASISTENCIA</a>
+        </div>
+    </section>
+
+    <script>
+        const musica = document.getElementById('musica');
+
+        function iniciarCarga() {
+            const overlay = document.getElementById('intro-overlay');
+            const status = document.getElementById('loading-status');
+            const bar = document.getElementById('bar');
+            document.getElementById('loader-box').style.display = 'block';
+            status.style.display = 'block';
+            
+            musica.volume = 0.5;
+            musica.play().catch(e => console.log("Esperando interacción para audio"));
+
+            let progreso = 0;
+            const intervalo = setInterval(() => {
+                progreso += 1;
+                bar.style.width = progreso + "%";
+                status.innerText = "SINCRONIZANDO: " + progreso + "%";
+                if (progreso >= 100) {
+                    clearInterval(intervalo);
+                    overlay.style.opacity = '0';
+                    setTimeout(() => { overlay.style.display = 'none'; checkScroll(); }, 1000);
+                }
+            }, 30);
+        }
+
+        function checkScroll() {
+            const sections = document.querySelectorAll('section');
+            const spidey = document.getElementById('spidey-walker');
+            const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            spidey.style.left = (scrollPercent * 115) - 10 + "%";
+            spidey.style.transform = `rotate(${scrollPercent * 720}deg)`;
+
+            sections.forEach(sec => {
+                const rect = sec.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.75) {
+                    sec.classList.add('active');
+                }
+            });
+        }
+        window.addEventListener('scroll', checkScroll);
+
+        // --- LÓGICA DE MOLÉCULAS / RED CONECTADA ---
+        const canvas = document.getElementById('web-canvas-background');
+        const ctx = canvas.getContext('2d');
+        let nodes = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            nodes = [];
+            const nodeCount = Math.max(40, (canvas.width * canvas.height) / 12000);
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.8,
+                    vy: (Math.random() - 0.5) * 0.8,
+                    r: Math.random() * 2 + 1
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < nodes.length; i++) {
+                let n = nodes[i];
+                n.x += n.vx; n.y += n.vy;
+
+                if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+
+                // Dibujar la "molécula"
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                ctx.fill();
+
+                // Dibujar conexiones
+                for (let j = i + 1; j < nodes.length; j++) {
+                    let n2 = nodes[j];
+                    const dist = Math.hypot(n.x - n2.x, n.y - n2.y);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(n.x, n.y);
+                        ctx.lineTo(n2.x, n2.y);
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${1 - dist / 150})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', resize);
+        resize(); draw();
+
+        // --- TIMER ---
+        const target = new Date("Feb 21, 2026 15:00:00").getTime();
+        setInterval(() => {
+            const d = target - new Date().getTime();
+            if (d < 0) {
+                document.getElementById('timer').innerText = "¡ES HOY!";
+                return;
+            }
+            const days = Math.floor(d/(1000*60*60*24)), h = Math.floor((d%(1000*60*60*24))/(1000*60*60)), 
+                  m = Math.floor((d%(1000*60*60))/(1000*60)), s = Math.floor((d%(1000*60))/1000);
+            document.getElementById('timer').innerText = `${days}d ${h}h ${m}m ${s}s`;
+        }, 1000);
+    </script>
+</body>
+</html>

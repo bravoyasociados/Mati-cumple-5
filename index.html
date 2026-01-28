@@ -2,9 +2,19 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Spider-Matí | Misión 5 Años</title>
+    
+    <meta name="theme-color" content="#d00000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Misión Matí">
+    <link rel="apple-touch-icon" href="mati.jpeg">
+    
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Misión%20Matí%22,%22short_name%22:%22Matí%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#000000%22,%22theme_color%22:%22#d00000%22}">
+
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --spidey-red: #d00000;
@@ -23,6 +33,9 @@
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            /* Ajuste para notch de iPhone */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         #web-canvas-background {
@@ -32,7 +45,6 @@
 
         #main-content { position: relative; z-index: 10; width: 100%; }
 
-        /* Pantalla de Carga */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 2000;
@@ -49,9 +61,8 @@
 
         .loader-bar { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; transition: width 0.1s; }
 
-        /* Animaciones de Secciones */
         section {
-            min-height: 80vh;
+            min-height: 85vh;
             display: flex; justify-content: center; align-items: center;
             padding: 20px;
             opacity: 0;
@@ -72,9 +83,8 @@
             box-shadow: 0 25px 60px rgba(0,0,0,0.5);
         }
 
-        /* Portal de Foto */
         .portal-foto {
-            width: 220px; height: 220px; margin: 0 auto 15px;
+            width: 200px; height: 200px; margin: 0 auto 15px;
             position: relative; display: flex; justify-content: center; align-items: center;
         }
 
@@ -87,7 +97,7 @@
         .portal-ring-inner {
             position: absolute; width: 92%; height: 92%;
             border-radius: 50%; border: 4px solid var(--spidey-red);
-            box-shadow: 0 0 25px var(--spidey-red);
+            box-shadow: 0 0 20px var(--spidey-red);
             animation: rotate-ring-reverse 5s linear infinite;
         }
 
@@ -95,24 +105,22 @@
         @keyframes rotate-ring-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
         .foto-container {
-            width: 180px; height: 180px; border-radius: 50%;
+            width: 160px; height: 160px; border-radius: 50%;
             overflow: hidden; border: 5px solid #fff; z-index: 5;
         }
 
         .foto-container img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Texto Creativo debajo de la foto */
         .alerta-hero {
             background: rgba(208, 0, 0, 0.85);
             padding: 10px; margin: 20px 0; border-radius: 12px;
-            font-size: 0.9rem; font-weight: 900;
+            font-size: 0.85rem; font-weight: 900;
             color: #fff; text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         h1, h2 { font-family: 'Bangers', cursive; color: #fff; text-shadow: 3px 3px 0 var(--spidey-blue); margin: 0; }
-        h1 { font-size: 4.2rem; line-height: 1; }
-        h2 { font-size: 2rem; margin-top: 5px; }
+        h1 { font-size: 4rem; line-height: 1; }
+        h2 { font-size: 1.8rem; margin-top: 5px; }
 
         .btn {
             display: inline-block; width: 90%; background: #fff; color: #000;
@@ -120,13 +128,12 @@
             font-weight: 900; margin-top: 15px; transition: 0.3s;
             text-transform: uppercase;
         }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255,255,255,0.3); }
         .btn-wa { background: #25D366; color: white; }
 
-        #timer { font-family: 'Bangers'; font-size: 2.6rem; margin: 15px 0; letter-spacing: 1px; }
+        #timer { font-family: 'Bangers'; font-size: 2.5rem; margin: 15px 0; }
 
         #spidey-walker {
-            position: fixed; width: 85px; z-index: 100;
+            position: fixed; width: 80px; z-index: 100;
             pointer-events: none; transition: all 4s ease-in-out;
         }
     </style>
@@ -135,9 +142,9 @@
 
     <div id="intro-overlay" onclick="iniciarCarga()">
         <h1>CARGANDO MISIÓN SECRETA</h1>
-        <p style="font-weight: bold; letter-spacing: 1px;">[ TOCA PARA DESBLOQUEAR ]</p>
+        <p>[ TOCA PARA DESBLOQUEAR ]</p>
         <div class="loader-container" id="loader-box"><div class="loader-bar" id="bar"></div></div>
-        <p id="loading-status" style="display: none; font-family: 'Bangers'; font-size: 1.4rem; color: #fff; margin-top: 10px;">0%</p>
+        <p id="loading-status" style="display: none; font-family: 'Bangers'; font-size: 1.2rem; color: #fff; margin-top: 10px;">0%</p>
     </div>
 
     <canvas id="web-canvas-background"></canvas>
@@ -152,14 +159,10 @@
                     <div class="portal-ring-inner"></div>
                     <div class="foto-container"><img src="mati.jpeg" alt="Matí"></div>
                 </div>
-                
-                <div class="alerta-hero">
-                    ⚠️ ALERTA: NIVEL DE HEROÍSMO AL 100% DETECTADO EN MATÍ
-                </div>
-
+                <div class="alerta-hero">⚠️ ALERTA: NIVEL DE HEROÍSMO AL 100% DETECTADO EN MATÍ</div>
                 <h1>¡MATÍ!</h1>
                 <h2>SPIDEY-NIVEL 5</h2>
-                <p>¡El multiverso nos necesita! Deja tu traje civil y prepárate para la acción en esta misión especial.</p>
+                <p>¡El multiverso nos necesita! Prepárate para la acción en esta misión especial.</p>
                 <div id="timer">00d 00h 00m 00s</div>
             </div>
         </section>
@@ -167,18 +170,16 @@
         <section>
             <div class="glass-card">
                 <h2>📍 BASE SECRETA</h2>
-                <p>Las coordenadas han sido descifradas. Pulsa para activar tu GPS:</p>
                 <a href="https://maps.app.goo.gl/YtLTCSwVcvXVLSnw8?g_st=ic" target="_blank" class="btn">VER UBICACIÓN</a>
             </div>
         </section>
 
         <section>
             <div class="glass-card">
-                <h2>📸 ARCHIVOS DE MISIÓN</h2>
-                <p>Ayúdanos a capturar cada momento subiendo tus fotos aquí:</p>
-                <a href="https://drive.google.com/drive/folders/1nAOBL-QdITX2vyFyeQK7IOMkmA6lmtlE" target="_blank" class="btn" style="background: var(--spidey-blue); color: white;">SUBIR AL DRIVE</a>
-                <hr style="margin: 25px 0; opacity: 0.2;">
-                <h2>✅ CONFIRMACIÓN</h2>
+                <h2>📸 ARCHIVOS DRIVE</h2>
+                <a href="https://drive.google.com/drive/folders/1nAOBL-QdITX2vyFyeQK7IOMkmA6lmtlE" target="_blank" class="btn" style="background: var(--spidey-blue); color: white;">SUBIR FOTOS</a>
+                <hr style="margin: 20px 0; opacity: 0.2;">
+                <h2>✅ REPORTE</h2>
                 <a href="https://wa.me/524272045993?text=¡Misión%20confirmada!%20Me%20reporto%20listo%20para%20la%20fiesta%20de%20Matí%20🕷️" target="_blank" class="btn btn-wa">CONFIRMAR ASISTENCIA</a>
             </div>
         </section>
@@ -192,13 +193,11 @@
             const overlay = document.getElementById('intro-overlay');
             const status = document.getElementById('loading-status');
             const bar = document.getElementById('bar');
-            
             document.getElementById('loader-box').style.display = 'block';
             status.style.display = 'block';
             
-            // Iniciar música
             musica.volume = 0.6;
-            musica.play().catch(e => console.log("Audio activo"));
+            musica.play().catch(e => {});
 
             let progreso = 0;
             const intervalo = setInterval(() => {
@@ -213,6 +212,10 @@
                         overlay.style.display = 'none'; 
                         initObserver(); 
                         moverSpidey();
+                        // Pedir pantalla completa si es posible
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen().catch(() => {});
+                        }
                     }, 1000);
                 }
             }, 30);
@@ -224,31 +227,27 @@
                     if (entry.isIntersecting) entry.target.classList.add('visible');
                     else entry.target.classList.remove('visible');
                 });
-            }, { threshold: 0.25 });
-
+            }, { threshold: 0.2 });
             document.querySelectorAll('section').forEach(sec => observer.observe(sec));
         }
 
         function moverSpidey() {
             const x = Math.random() * (window.innerWidth - 80);
             const y = Math.random() * (window.innerHeight - 80);
-            const rot = (Math.random() - 0.5) * 45; // Rotación más natural
             spidey.style.left = x + "px";
             spidey.style.top = y + "px";
-            spidey.style.transform = `rotate(${rot}deg)`;
+            spidey.style.transform = `rotate(${(Math.random()-0.5)*40}deg)`;
             setTimeout(moverSpidey, 4000);
         }
 
-        // Canvas de Moléculas
         const canvas = document.getElementById('web-canvas-background');
         const ctx = canvas.getContext('2d');
         let nodes = [];
         function resize() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             nodes = [];
-            const nodeCount = Math.max(30, (canvas.width * canvas.height) / 16000);
-            for (let i = 0; i < nodeCount; i++) {
-                nodes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, r: 1.5 });
+            for (let i = 0; i < 40; i++) {
+                nodes.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.4, vy: (Math.random()-0.5)*0.4, r: 1.5 });
             }
         }
         function draw() {
@@ -260,9 +259,9 @@
                 ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2); ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fill();
                 for (let j = i + 1; j < nodes.length; j++) {
                     const d = Math.hypot(n.x - nodes[j].x, n.y - nodes[j].y);
-                    if (d < 140) {
+                    if (d < 120) {
                         ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(nodes[j].x, nodes[j].y);
-                        ctx.strokeStyle = `rgba(255,255,255,${0.25 - d/560})`; ctx.stroke();
+                        ctx.strokeStyle = `rgba(255,255,255,${0.2 - d/600})`; ctx.stroke();
                     }
                 }
             });
@@ -270,12 +269,10 @@
         }
         window.addEventListener('resize', resize); resize(); draw();
 
-        // Cuenta regresiva corregida
         const targetDate = new Date("Feb 21, 2026 15:00:00").getTime();
         setInterval(() => {
-            const now = new Date().getTime();
-            const d = targetDate - now;
-            if (d < 0) { document.getElementById('timer').innerText = "¡MISIÓN EN CURSO!"; return; }
+            const d = targetDate - new Date().getTime();
+            if (d < 0) { document.getElementById('timer').innerText = "¡MISIÓN ACTIVADA!"; return; }
             const days = Math.floor(d/(1000*60*60*24)), h = Math.floor((d%(1000*60*60*24))/(1000*60*60)), m = Math.floor((d%(1000*60*60))/(1000*60)), s = Math.floor((d%(1000*60))/1000);
             document.getElementById('timer').innerText = `${days}d ${h}h ${m}m ${s}s`;
         }, 1000);

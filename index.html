@@ -66,12 +66,12 @@
             border-radius: 50px; font-weight: 800; text-decoration: none; text-align: center;
             transition: 0.3s; text-transform: uppercase; font-size: 0.9rem;
         }
-        .btn-confirm { background: #25D366; color: white; }
+        .btn-confirm { background: #25D366; color: white; border: none; }
         .btn-drive { background: #005a9c; color: white; border: 1px solid rgba(255,255,255,0.3); }
-        .btn-radar { background: white; color: black; font-weight: 900; }
+        .btn-radar { background: white; color: black; font-weight: 900; border: none; }
 
         .footer-base {
-            background: rgba(0, 0, 0, 0.9); border-top: 3px solid var(--spidey-red);
+            background: rgba(0, 0, 0, 0.95); border-top: 3px solid var(--spidey-red);
             padding: 25px; width: 100%; position: fixed; bottom: 0; z-index: 100;
         }
     </style>
@@ -104,7 +104,7 @@
 
         <div class="glass-card reveal">
             <h3 style="margin-bottom: 10px; font-size: 1rem;">¿ACEPTAS EL DESAFÍO?</h3>
-            <a href="https://wa.me/521XXXXXXXXXX?text=¡Misión+Aceptada!+Confirmo+mi+asistencia+al+cumple+de+Mati" class="btn btn-confirm">CONFIRMAR ASISTENCIA</a>
+            <a href="https://api.whatsapp.com/send?phone=524272045993&text=%C2%A1Misi%C3%B3n%20Aceptada!%20Confirmo%20mi%20asistencia%20al%20cumple%20de%20Mati%20%F0%9F%95%B7%EF%B8%8F" class="btn btn-confirm">CONFIRMAR ASISTENCIA</a>
             
             <p style="font-size: 0.75rem; margin-top: 20px; color: #ccc;">Comparte tus fotos y videos aquí:</p>
             <a href="https://drive.google.com/drive/folders/1nAOBL-QdITX2vyFyeQK7IOMkmA6lmtlE" class="btn btn-drive" target="_blank">CARPETA DRIVE</a>
@@ -112,7 +112,7 @@
 
         <div class="footer-base">
             <p style="color: var(--stark-gold); font-weight: 900; margin-bottom: 8px;">📍 COORDENADAS DE LA BASE</p>
-            <a href="https://www.google.com/maps/search/?api=1&query=Ubicacion" class="btn btn-radar" target="_blank">VER EN GOOGLE MAPS</a>
+            <a href="https://maps.app.goo.gl/pu794A28FfeVwm4t8?g_st=iwb" class="btn btn-radar" target="_blank">VER EN GOOGLE MAPS</a>
         </div>
     </div>
 
@@ -120,7 +120,6 @@
         const music = document.getElementById('spidey-music');
         const startBtn = document.getElementById('start-btn');
         
-        // Simular carga rápida
         setTimeout(() => {
             document.getElementById('status').style.display = 'none';
             startBtn.style.display = 'block';
@@ -137,7 +136,6 @@
             }, 500);
         };
 
-        // Cuenta regresiva
         const target = new Date("Feb 21, 2026 14:00:00").getTime();
         setInterval(() => {
             const diff = target - new Date().getTime();
@@ -148,7 +146,6 @@
             document.getElementById('timer').innerHTML = `${d}D ${h}H ${m}M ${s}S`;
         }, 1000);
 
-        // Fondo moléculas
         const canvas = document.getElementById('canvas-molecules');
         const ctx = canvas.getContext('2d');
         let pts = [];

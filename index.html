@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Spider-Matí | Misión 5 Años</title>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;900&display=swap" rel="stylesheet">
     <style>
@@ -10,17 +10,19 @@
             --spidey-red: #d00000;
             --spidey-blue: #03045e;
             --glass: rgba(255, 255, 255, 0.12);
-            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.25);
         }
 
         body, html {
             margin: 0; padding: 0;
+            height: 100%;
             background: linear-gradient(135deg, var(--spidey-red) 0%, var(--spidey-blue) 100%);
             background-attachment: fixed;
             color: white;
             font-family: 'Roboto', sans-serif;
+            overflow-y: auto;
             overflow-x: hidden;
-            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
 
         #web-canvas-background {
@@ -28,93 +30,104 @@
             z-index: 1; pointer-events: none;
         }
 
-        #main-content { position: relative; z-index: 10; }
+        #main-content { position: relative; z-index: 10; width: 100%; }
 
+        /* Pantalla de Carga */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 1000;
+            background: #000; z-index: 2000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             cursor: pointer; text-align: center; transition: 1s ease-in-out;
+            padding: 20px;
         }
 
         .loader-container {
-            width: 80%; max-width: 300px; height: 12px;
-            background: #222; border-radius: 10px; margin-top: 20px;
+            width: 85%; max-width: 350px; height: 15px;
+            background: #222; border-radius: 10px; margin-top: 25px;
             display: none; overflow: hidden; border: 1px solid white;
         }
 
-        .loader-bar { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; }
+        .loader-bar { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; transition: width 0.1s; }
 
+        /* Animaciones de Secciones */
         section {
-            min-height: 85vh;
+            min-height: 80vh;
             display: flex; justify-content: center; align-items: center;
-            padding: 30px 20px;
+            padding: 20px;
             opacity: 0;
-            transition: all 0.8s ease-out;
-            transform: translateY(20px);
+            transform: scale(0.85) translateY(40px);
+            transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        section.active { opacity: 1; transform: translateY(0); }
+        section.visible { opacity: 1; transform: scale(1) translateY(0); }
 
         .glass-card {
             background: var(--glass);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
+            border: 2px solid var(--glass-border);
             border-radius: 40px;
-            padding: 35px; width: 100%; max-width: 400px;
+            padding: 30px; width: 100%; max-width: 380px;
             text-align: center; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
         }
+
+        /* Portal de Foto */
+        .portal-foto {
+            width: 220px; height: 220px; margin: 0 auto 15px;
+            position: relative; display: flex; justify-content: center; align-items: center;
+        }
+
+        .portal-ring {
+            position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; border: 4px dashed rgba(255,255,255,0.7);
+            animation: rotate-ring 10s linear infinite;
+        }
+
+        .portal-ring-inner {
+            position: absolute; width: 92%; height: 92%;
+            border-radius: 50%; border: 4px solid var(--spidey-red);
+            box-shadow: 0 0 25px var(--spidey-red);
+            animation: rotate-ring-reverse 5s linear infinite;
+        }
+
+        @keyframes rotate-ring { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes rotate-ring-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
         .foto-container {
-            width: 220px; height: 220px; margin: 0 auto 20px;
-            border-radius: 50%; position: relative; padding: 8px;
-            background: white;
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
-            animation: pulse-energy 2s infinite alternate;
+            width: 180px; height: 180px; border-radius: 50%;
+            overflow: hidden; border: 5px solid #fff; z-index: 5;
         }
 
-        @keyframes pulse-energy {
-            from { transform: scale(1); }
-            to { transform: scale(1.05); box-shadow: 0 0 60px rgba(255, 255, 255, 0.8), 0 0 100px rgba(208, 0, 0, 0.6); }
-        }
+        .foto-container img { width: 100%; height: 100%; object-fit: cover; }
 
-        .foto-container img {
-            width: 100%; height: 100%; border-radius: 50%;
-            object-fit: cover; border: 5px solid #000;
-        }
-
+        /* Texto Creativo debajo de la foto */
         .alerta-hero {
-            background: rgba(0, 0, 0, 0.4);
-            border-left: 4px solid var(--spidey-red);
-            padding: 10px; margin: 15px 0;
-            font-size: 0.9rem; font-style: italic;
-            text-transform: uppercase; letter-spacing: 1px;
-            color: #ffda00;
+            background: rgba(208, 0, 0, 0.85);
+            padding: 10px; margin: 20px 0; border-radius: 12px;
+            font-size: 0.9rem; font-weight: 900;
+            color: #fff; text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         h1, h2 { font-family: 'Bangers', cursive; color: #fff; text-shadow: 3px 3px 0 var(--spidey-blue); margin: 0; }
-        h1 { font-size: 4.5rem; }
-        h2 { font-size: 2.2rem; margin-bottom: 10px; }
+        h1 { font-size: 4.2rem; line-height: 1; }
+        h2 { font-size: 2rem; margin-top: 5px; }
 
         .btn {
             display: inline-block; width: 90%; background: #fff; color: #000;
-            text-decoration: none; padding: 18px 0; border-radius: 15px;
+            text-decoration: none; padding: 16px 0; border-radius: 15px;
             font-weight: 900; margin-top: 15px; transition: 0.3s;
             text-transform: uppercase;
         }
-        .btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255,255,255,0.3); }
         .btn-wa { background: #25D366; color: white; }
 
-        #timer { font-family: 'Bangers'; font-size: 2.8rem; margin: 15px 0; color: #fff; }
+        #timer { font-family: 'Bangers'; font-size: 2.6rem; margin: 15px 0; letter-spacing: 1px; }
 
-        /* Estilo para el Hombre Araña flotante automático */
         #spidey-walker {
-            position: fixed; width: 100px; z-index: 100;
-            pointer-events: none;
-            top: 50%; left: 50%;
-            transition: all 3s ease-in-out; /* Movimiento suave */
+            position: fixed; width: 85px; z-index: 100;
+            pointer-events: none; transition: all 4s ease-in-out;
         }
     </style>
 </head>
@@ -122,9 +135,9 @@
 
     <div id="intro-overlay" onclick="iniciarCarga()">
         <h1>CARGANDO MISIÓN SECRETA</h1>
-        <p>[ TOCA PARA DESPLEGAR RED ]</p>
+        <p style="font-weight: bold; letter-spacing: 1px;">[ TOCA PARA DESBLOQUEAR ]</p>
         <div class="loader-container" id="loader-box"><div class="loader-bar" id="bar"></div></div>
-        <p id="loading-status" style="display: none; font-family: 'Bangers'; font-size: 1.5rem;">0%</p>
+        <p id="loading-status" style="display: none; font-family: 'Bangers'; font-size: 1.4rem; color: #fff; margin-top: 10px;">0%</p>
     </div>
 
     <canvas id="web-canvas-background"></canvas>
@@ -132,32 +145,40 @@
     <audio id="musica" loop><source src="cancion.mp3" type="audio/mpeg"></audio>
 
     <div id="main-content">
-        <section class="sec-left">
+        <section id="hero-section">
             <div class="glass-card">
-                <div class="foto-container"><img src="mati.jpeg" alt="Matí"></div>
-                <div class="alerta-hero">⚠️ ADVERTENCIA: Nivel de ternura y heroísmo al 100% detectado.</div>
+                <div class="portal-foto">
+                    <div class="portal-ring"></div>
+                    <div class="portal-ring-inner"></div>
+                    <div class="foto-container"><img src="mati.jpeg" alt="Matí"></div>
+                </div>
+                
+                <div class="alerta-hero">
+                    ⚠️ ALERTA: NIVEL DE HEROÍSMO AL 100% DETECTADO EN MATÍ
+                </div>
+
                 <h1>¡MATÍ!</h1>
                 <h2>SPIDEY-NIVEL 5</h2>
-                <p>¡El multiverso converge en un solo lugar! Deja tu traje civil y prepárate para la acción.</p>
+                <p>¡El multiverso nos necesita! Deja tu traje civil y prepárate para la acción en esta misión especial.</p>
                 <div id="timer">00d 00h 00m 00s</div>
             </div>
         </section>
 
-        <section class="sec-right">
+        <section>
             <div class="glass-card">
-                <h2>📍 BASE DE OPERACIONES</h2>
-                <p>Escanea el perímetro para encontrar la ubicación de la fiesta:</p>
-                <a href="https://maps.app.goo.gl/YtLTCSwVcvXVLSnw8?g_st=ic" target="_blank" class="btn">DESBLOQUEAR MAPA</a>
+                <h2>📍 BASE SECRETA</h2>
+                <p>Las coordenadas han sido descifradas. Pulsa para activar tu GPS:</p>
+                <a href="https://maps.app.goo.gl/YtLTCSwVcvXVLSnw8?g_st=ic" target="_blank" class="btn">VER UBICACIÓN</a>
             </div>
         </section>
 
-        <section class="sec-bottom">
+        <section>
             <div class="glass-card">
-                <h2>📸 REPORTE DE CAMPO</h2>
-                <p>¡Comparte tus fotos de la misión aquí!</p>
-                <a href="https://drive.google.com/drive/folders/1nAOBL-QdITX2vyFyeQK7IOMkmA6lmtlE" target="_blank" class="btn" style="background: var(--spidey-blue); color: white;">ENVIAR ARCHIVOS</a>
-                <hr style="margin: 25px 0; opacity: 0.1;">
-                <h2>✅ ESTATUS DE MISIÓN</h2>
+                <h2>📸 ARCHIVOS DE MISIÓN</h2>
+                <p>Ayúdanos a capturar cada momento subiendo tus fotos aquí:</p>
+                <a href="https://drive.google.com/drive/folders/1nAOBL-QdITX2vyFyeQK7IOMkmA6lmtlE" target="_blank" class="btn" style="background: var(--spidey-blue); color: white;">SUBIR AL DRIVE</a>
+                <hr style="margin: 25px 0; opacity: 0.2;">
+                <h2>✅ CONFIRMACIÓN</h2>
                 <a href="https://wa.me/524272045993?text=¡Misión%20confirmada!%20Me%20reporto%20listo%20para%20la%20fiesta%20de%20Matí%20🕷️" target="_blank" class="btn btn-wa">CONFIRMAR ASISTENCIA</a>
             </div>
         </section>
@@ -171,82 +192,90 @@
             const overlay = document.getElementById('intro-overlay');
             const status = document.getElementById('loading-status');
             const bar = document.getElementById('bar');
+            
             document.getElementById('loader-box').style.display = 'block';
             status.style.display = 'block';
-            musica.volume = 0.5; musica.play().catch(e => {});
+            
+            // Iniciar música
+            musica.volume = 0.6;
+            musica.play().catch(e => console.log("Audio activo"));
+
             let progreso = 0;
             const intervalo = setInterval(() => {
-                progreso += 1; bar.style.width = progreso + "%";
-                status.innerText = "CONFIGURANDO TRAJE: " + progreso + "%";
+                progreso += 1;
+                bar.style.width = progreso + "%";
+                status.innerText = "DESCARGANDO INFORMACIÓN DE LA MISIÓN: " + progreso + "%";
+                
                 if (progreso >= 100) {
                     clearInterval(intervalo);
                     overlay.style.opacity = '0';
                     setTimeout(() => { 
                         overlay.style.display = 'none'; 
-                        checkScroll();
-                        moverSpidey(); // Iniciar movimiento automático
+                        initObserver(); 
+                        moverSpidey();
                     }, 1000);
                 }
-            }, 25);
+            }, 30);
         }
 
-        // Función para mover al Hombre Araña por toda la pantalla
+        function initObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
+                    else entry.target.classList.remove('visible');
+                });
+            }, { threshold: 0.25 });
+
+            document.querySelectorAll('section').forEach(sec => observer.observe(sec));
+        }
+
         function moverSpidey() {
-            const x = Math.random() * (window.innerWidth - 100);
-            const y = Math.random() * (window.innerHeight - 100);
-            const rot = Math.random() * 360;
-            
+            const x = Math.random() * (window.innerWidth - 80);
+            const y = Math.random() * (window.innerHeight - 80);
+            const rot = (Math.random() - 0.5) * 45; // Rotación más natural
             spidey.style.left = x + "px";
             spidey.style.top = y + "px";
             spidey.style.transform = `rotate(${rot}deg)`;
-            
-            setTimeout(moverSpidey, 3000); // Se mueve a un lugar nuevo cada 3 segundos
+            setTimeout(moverSpidey, 4000);
         }
 
-        // Canvas de Red de Moléculas
+        // Canvas de Moléculas
         const canvas = document.getElementById('web-canvas-background');
         const ctx = canvas.getContext('2d');
         let nodes = [];
         function resize() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             nodes = [];
-            const nodeCount = Math.max(40, (canvas.width * canvas.height) / 10000);
+            const nodeCount = Math.max(30, (canvas.width * canvas.height) / 16000);
             for (let i = 0; i < nodeCount; i++) {
-                nodes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.7, vy: (Math.random() - 0.5) * 0.7, r: Math.random() * 2 + 1 });
+                nodes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, r: 1.5 });
             }
         }
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < nodes.length; i++) {
-                let n = nodes[i]; n.x += n.vx; n.y += n.vy;
+            nodes.forEach((n, i) => {
+                n.x += n.vx; n.y += n.vy;
                 if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
                 if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
-                ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fillStyle = "rgba(255, 255, 255, 0.7)"; ctx.fill();
+                ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2); ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fill();
                 for (let j = i + 1; j < nodes.length; j++) {
-                    let n2 = nodes[j]; const dist = Math.hypot(n.x - n2.x, n.y - n2.y);
-                    if (dist < 150) {
-                        ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(n2.x, n2.y);
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 - dist / 375})`; ctx.lineWidth = 0.8; ctx.stroke();
+                    const d = Math.hypot(n.x - nodes[j].x, n.y - nodes[j].y);
+                    if (d < 140) {
+                        ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.strokeStyle = `rgba(255,255,255,${0.25 - d/560})`; ctx.stroke();
                     }
                 }
-            }
+            });
             requestAnimationFrame(draw);
         }
         window.addEventListener('resize', resize); resize(); draw();
 
-        function checkScroll() {
-            const sections = document.querySelectorAll('section');
-            sections.forEach(sec => {
-                const rect = sec.getBoundingClientRect();
-                if (rect.top < window.innerHeight * 0.85) sec.classList.add('active');
-            });
-        }
-        window.addEventListener('scroll', checkScroll);
-
-        const target = new Date("Feb 21, 2026 15:00:00").getTime();
+        // Cuenta regresiva corregida
+        const targetDate = new Date("Feb 21, 2026 15:00:00").getTime();
         setInterval(() => {
-            const d = target - new Date().getTime();
-            if (d < 0) { document.getElementById('timer').innerText = "¡MISIÓN INICIADA!"; return; }
+            const now = new Date().getTime();
+            const d = targetDate - now;
+            if (d < 0) { document.getElementById('timer').innerText = "¡MISIÓN EN CURSO!"; return; }
             const days = Math.floor(d/(1000*60*60*24)), h = Math.floor((d%(1000*60*60*24))/(1000*60*60)), m = Math.floor((d%(1000*60*60))/(1000*60)), s = Math.floor((d%(1000*60))/1000);
             document.getElementById('timer').innerText = `${days}d ${h}h ${m}m ${s}s`;
         }, 1000);

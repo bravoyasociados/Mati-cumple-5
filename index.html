@@ -24,12 +24,9 @@
         /* --- ANIMACIONES --- */
         @keyframes zoomLoop {
             0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.15); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 0.9; }
         }
-        .mati-title-anim {
-            animation: zoomLoop 3s infinite ease-in-out;
-            display: inline-block;
-        }
+        .mati-title-anim { animation: zoomLoop 3s infinite ease-in-out; display: inline-block; }
 
         .reveal { opacity: 0; transform: translateY(20px); transition: 0.8s ease-out; }
         .visible { opacity: 1 !important; transform: translateY(0) !important; }
@@ -41,11 +38,17 @@
         .glass-card {
             background: var(--glass); backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 25px;
-            width: 100%; max-width: 400px; padding: 30px 20px; margin-bottom: 20px;
+            width: 100%; max-width: 400px; padding: 25px 20px; margin-bottom: 20px;
         }
 
         .mati-title { color: var(--stark-gold); font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
-        .invite-text { font-style: italic; color: #eee; font-size: 0.95rem; line-height: 1.4; margin-bottom: 15px; }
+        .invite-text { font-style: italic; color: #eee; font-size: 0.9rem; line-height: 1.4; margin-bottom: 15px; }
+
+        .date-box {
+            border-top: 1px solid rgba(255,215,0,0.3);
+            margin-top: 15px; padding-top: 15px;
+        }
+        .date-text { color: var(--stark-gold); font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; }
 
         /* --- PROTAGONISMO MATI --- */
         .hero-container { position: relative; margin: 20px 0; width: 260px; height: 260px; }
@@ -64,11 +67,11 @@
         .btn { 
             display: block; width: 100%; margin: 12px 0; padding: 18px; 
             border-radius: 50px; font-weight: 800; text-decoration: none; text-align: center;
-            transition: 0.3s; text-transform: uppercase; font-size: 0.9rem;
+            transition: 0.3s; text-transform: uppercase; font-size: 0.9rem; border: none;
         }
-        .btn-confirm { background: #25D366; color: white; border: none; }
+        .btn-confirm { background: #25D366; color: white; }
         .btn-drive { background: #005a9c; color: white; border: 1px solid rgba(255,255,255,0.3); }
-        .btn-radar { background: white; color: black; font-weight: 900; border: none; }
+        .btn-radar { background: white; color: black; font-weight: 900; }
 
         .footer-base {
             background: rgba(0, 0, 0, 0.95); border-top: 3px solid var(--spidey-red);
@@ -79,7 +82,7 @@
 <body>
 
     <div id="loading-screen">
-        <p id="status" style="color: var(--stark-gold); margin-bottom: 20px; letter-spacing: 2px;">INICIANDO PROTOCOLO V...</p>
+        <p id="status" style="color: var(--stark-gold); margin-bottom: 20px; letter-spacing: 2px;">SINCRONIZANDO TIEMPO...</p>
         <button id="start-btn">ACTIVAR SISTEMAS</button>
     </div>
 
@@ -94,7 +97,14 @@
             <p class="invite-text">
                 "Estás convocado a unirte a esta misión especial. Acompaña a Mati en su aventura más grande hasta ahora... ¡Solo para valientes dispuestos a correr el riesgo de pasarla increíble!"
             </p>
-            <div id="timer" style="font-size: 1.8rem; font-weight: 900; color: var(--stark-gold);">--:--:--:--</div>
+            
+            <div id="timer" style="font-size: 1.8rem; font-weight: 900; color: white; margin-bottom: 10px;">--:--:--:--</div>
+            
+            <div class="date-box">
+                <p style="font-size: 0.7rem; letter-spacing: 2px; color: #aaa; margin-bottom: 5px;">FECHA Y HORA DE LA MISIÓN:</p>
+                <p class="date-text">SÁBADO 21 DE FEBRERO, 2026</p>
+                <p class="date-text" style="font-size: 1.4rem;">02:00 PM</p>
+            </div>
         </div>
 
         <div class="hero-container reveal">
@@ -123,7 +133,7 @@
         setTimeout(() => {
             document.getElementById('status').style.display = 'none';
             startBtn.style.display = 'block';
-        }, 2000);
+        }, 1500);
 
         startBtn.onclick = () => {
             music.play();
@@ -131,7 +141,7 @@
             setTimeout(() => {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.querySelectorAll('.reveal').forEach((el, i) => {
-                    setTimeout(() => el.classList.add('visible'), i * 400);
+                    setTimeout(() => el.classList.add('visible'), i * 350);
                 });
             }, 500);
         };
@@ -161,7 +171,7 @@
                 if(this.y<0 || this.y>canvas.height) this.vy*=-1;
             }
         }
-        for(let i=0; i<40; i++) pts.push(new Pt());
+        for(let i=0; i<35; i++) pts.push(new Pt());
         function anim() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
             pts.forEach((p, i) => {

@@ -2,290 +2,185 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Spider-Matí | Misión 5 Años</title>
-    
-    <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Misión%20Matí%22,%22display%22:%22standalone%22,%22orientation%22:%22portrait%22}">
-
-    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;900&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión: Mati Cumple 5</title>
     <style>
-        :root {
-            --spidey-red: #d00000;
-            --spidey-blue: #03045e;
-            --glass: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-        }
+        :root { --spidey-red: #e62429; --stark-gold: #FFD700; --glass: rgba(255, 255, 255, 0.12); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
 
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; min-height: 100%;
-            background: #000;
-            color: white;
-            font-family: 'Roboto', sans-serif;
-            overflow-x: hidden;
-            perspective: 1200px;
-        }
-
-        #web-canvas-background {
+        /* --- PANTALLA DE CARGA --- */
+        #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; pointer-events: none;
-            background: linear-gradient(135deg, var(--spidey-red) 0%, var(--spidey-blue) 100%);
+            background: #000; z-index: 9999; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+        #start-btn {
+            display: none; padding: 15px 35px; background: var(--spidey-red);
+            color: white; border: none; border-radius: 50px; font-weight: 900;
+            cursor: pointer; font-size: 1.1rem; box-shadow: 0 0 20px var(--spidey-red);
         }
 
-        #main-content {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* --- ANIMACIONES --- */
+        @keyframes zoomLoop {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.8; }
+        }
+        .mati-title-anim {
+            animation: zoomLoop 3s infinite ease-in-out;
+            display: inline-block;
         }
 
-        /* --- PANTALLA DE CARGA REESTRUCTURADA --- */
-        #intro-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 25px; box-sizing: border-box;
-        }
+        .reveal { opacity: 0; transform: translateY(20px); transition: 0.8s ease-out; }
+        .visible { opacity: 1 !important; transform: translateY(0) !important; }
 
-        #intro-overlay h1 { font-size: 3.5rem; margin-bottom: 10px; }
-
-        .loader-container {
-            width: 85%; max-width: 320px; height: 14px;
-            background: #222; border-radius: 10px; margin: 20px 0;
-            display: none; overflow: hidden; border: 1px solid white;
-        }
-        .loader-bar { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; }
-
-        /* --- ANIMACIÓN REMOLINO 3D --- */
-        section {
-            width: 90%; max-width: 400px; min-height: 95vh;
-            display: flex; justify-content: center; align-items: center;
-            margin: 0 auto; opacity: 0;
-            transform: translateZ(-600px) translateX(150px) rotateY(100deg);
-            transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        section.visible { opacity: 1; transform: translateZ(0) translateX(0) rotateY(0deg); }
-        section.exit { opacity: 0; transform: translateZ(-600px) translateX(-150px) rotateY(-100deg); }
+        /* --- LAYOUT --- */
+        #canvas-molecules { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
+        .main-content { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; padding: 20px 20px 180px; text-align: center; }
 
         .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 40px;
-            padding: 30px; width: 100%;
-            box-sizing: border-box;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            background: var(--glass); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 25px;
+            width: 100%; max-width: 400px; padding: 30px 20px; margin-bottom: 20px;
         }
 
-        .portal-foto {
-            width: 200px; height: 200px; margin: 0 auto 15px;
-            position: relative; display: flex; justify-content: center; align-items: center;
+        .mati-title { color: var(--stark-gold); font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
+        .invite-text { font-style: italic; color: #eee; font-size: 0.95rem; line-height: 1.4; margin-bottom: 15px; }
+
+        /* --- PROTAGONISMO MATI --- */
+        .hero-container { position: relative; margin: 20px 0; width: 260px; height: 260px; }
+        .img-mati { 
+            width: 100%; height: 100%; border-radius: 50%; 
+            border: 6px solid var(--stark-gold); object-fit: cover;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
         }
-
-        .portal-ring {
-            position: absolute; width: 110%; height: 110%;
-            border-radius: 50%; border: 4px dotted rgba(255,255,255,0.4);
-            animation: spin 12s linear infinite;
+        .img-spidey-mini { 
+            position: absolute; bottom: -5px; right: -15px; 
+            width: 115px; z-index: 15; animation: float 3s infinite ease-in-out; 
         }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(5deg); } 50% { transform: translateY(-15px) rotate(-5deg); } }
 
-        .foto-container {
-            width: 170px; height: 170px; border-radius: 50%;
-            overflow: hidden; border: 6px solid #fff; z-index: 5;
-            box-shadow: 0 0 30px rgba(208, 0, 0, 0.6);
+        /* --- BOTONES --- */
+        .btn { 
+            display: block; width: 100%; margin: 12px 0; padding: 18px; 
+            border-radius: 50px; font-weight: 800; text-decoration: none; text-align: center;
+            transition: 0.3s; text-transform: uppercase; font-size: 0.9rem;
         }
-        .foto-container img { width: 100%; height: 100%; object-fit: cover; }
+        .btn-confirm { background: #25D366; color: white; }
+        .btn-drive { background: #005a9c; color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-radar { background: white; color: black; font-weight: 900; }
 
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .alerta-hero {
-            background: #d00000;
-            padding: 10px 15px; margin: 20px 0; border-radius: 15px;
-            font-size: 0.85rem; font-weight: 900; color: #fff;
-            text-transform: uppercase; display: inline-block;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        h1 { font-family: 'Bangers', cursive; color: #fff; text-shadow: 4px 4px 0 var(--spidey-blue); margin: 0; }
-        h1.main-title { font-size: 4.5rem; line-height: 0.9; }
-        h2 { font-family: 'Bangers', cursive; font-size: 2.2rem; margin: 10px 0; color: #ffda00; }
-        p { font-size: 1rem; line-height: 1.5; margin: 15px 0; text-align: center; }
-
-        .btn {
-            display: block; width: 100%; background: #fff; color: #000;
-            text-decoration: none; padding: 18px 0; border-radius: 20px;
-            font-weight: 900; margin-top: 15px; transition: 0.3s;
-            text-transform: uppercase; border: none; font-size: 1.1rem;
-        }
-        .btn-wa { background: #25D366; color: white; }
-
-        #timer { font-family: 'Bangers'; font-size: 3rem; margin: 15px 0; color: #fff; letter-spacing: 1px; }
-
-        #spidey-walker {
-            position: fixed; width: 85px; z-index: 100;
-            pointer-events: none; transition: all 3.5s ease-in-out;
+        .footer-base {
+            background: rgba(0, 0, 0, 0.9); border-top: 3px solid var(--spidey-red);
+            padding: 25px; width: 100%; position: fixed; bottom: 0; z-index: 100;
         }
     </style>
 </head>
 <body>
 
-    <div id="intro-overlay" onclick="iniciarCarga()">
-        <h1>CARGANDO MISIÓN SECRETA</h1>
-        <p style="font-weight: 900; letter-spacing: 1.5px;">[ TOCA PARA DESPLEGAR ]</p>
-        
-        <div class="loader-container" id="loader-box">
-            <div class="loader-bar" id="bar"></div>
-        </div>
-        
-        <p id="loading-status" style="display: none; font-family: 'Bangers'; font-size: 1.3rem; color: #fff; margin-top: 10px; max-width: 80%;">
-            Sincronizando... 0%
-        </p>
+    <div id="loading-screen">
+        <p id="status" style="color: var(--stark-gold); margin-bottom: 20px; letter-spacing: 2px;">INICIANDO PROTOCOLO V...</p>
+        <button id="start-btn">ACTIVAR SISTEMAS</button>
     </div>
 
-    <canvas id="web-canvas-background"></canvas>
-    <img src="spiderman.png" id="spidey-walker" alt="Spider-Man">
-    <audio id="musica" loop><source src="cancion.mp3" type="audio/mpeg"></audio>
+    <audio id="spidey-music" loop><source src="cancion.mp3" type="audio/mpeg"></audio>
+    <canvas id="canvas-molecules"></canvas>
 
-    <div id="main-content">
-        <section>
-            <div class="glass-card">
-                <div class="portal-foto">
-                    <div class="portal-ring"></div>
-                    <div class="foto-container"><img src="mati.jpeg" alt="Matí"></div>
-                </div>
-                <div class="alerta-hero">⚠️ NIVEL DE HEROÍSMO: 100% DETECTADO</div>
-                <h1 class="main-title">¡MATÍ!</h1>
-                <h2>SPIDEY-NIVEL 5</h2>
-                <p>¡El multiverso nos necesita! Prepárate para la acción en esta misión especial.</p>
-                <div id="timer">00d 00h 00m 00s</div>
+    <div class="main-content">
+        <div class="glass-card reveal">
+            <div class="mati-title-anim">
+                <h1 class="mati-title">MATI CUMPLE 5</h1>
             </div>
-        </section>
+            <p class="invite-text">
+                "Estás convocado a unirte a esta misión especial. Acompaña a Mati en su aventura más grande hasta ahora... ¡Solo para valientes dispuestos a correr el riesgo de pasarla increíble!"
+            </p>
+            <div id="timer" style="font-size: 1.8rem; font-weight: 900; color: var(--stark-gold);">--:--:--:--</div>
+        </div>
 
-        <section>
-            <div class="glass-card">
-                <h2>📍 BASE SECRETA</h2>
-                <p>Las coordenadas han sido descifradas con éxito.</p>
-                <a href="https://maps.app.goo.gl/YtLTCSwVcvXVLSnw8?g_st=ic" target="_blank" class="btn">ACTIVAR RADAR</a>
-            </div>
-        </section>
+        <div class="hero-container reveal">
+            <img src="mati.jpeg" class="img-mati">
+            <img src="spiderman.png" class="img-spidey-mini">
+        </div>
 
-        <section>
-            <div class="glass-card">
-                <h2>📸 REPORTE VISUAL</h2>
-                <p>Sube tus evidencias aquí:</p>
-                <a href="https://drive.google.com/drive/folders/1nAOBL-QdITX2vyFyeQK7IOMkmA6lmtlE" target="_blank" class="btn" style="background: var(--spidey-blue); color: white;">SUBIR AL DRIVE</a>
-                <hr style="margin: 25px 0; opacity: 0.1;">
-                <h2>✅ ESTATUS</h2>
-                <a href="https://wa.me/524272045993?text=¡Misión%20confirmada!%20Estaré%20listo%20para%20la%20fiesta%20de%20Matí%20🕷️" target="_blank" class="btn btn-wa">CONFIRMAR</a>
-            </div>
-        </section>
+        <div class="glass-card reveal">
+            <h3 style="margin-bottom: 10px; font-size: 1rem;">¿ACEPTAS EL DESAFÍO?</h3>
+            <a href="https://wa.me/521XXXXXXXXXX?text=¡Misión+Aceptada!+Confirmo+mi+asistencia+al+cumple+de+Mati" class="btn btn-confirm">CONFIRMAR ASISTENCIA</a>
+            
+            <p style="font-size: 0.75rem; margin-top: 20px; color: #ccc;">Comparte tus fotos y videos aquí:</p>
+            <a href="https://drive.google.com/drive/folders/1nAOBL-QdITX2vyFyeQK7IOMkmA6lmtlE" class="btn btn-drive" target="_blank">CARPETA DRIVE</a>
+        </div>
+
+        <div class="footer-base">
+            <p style="color: var(--stark-gold); font-weight: 900; margin-bottom: 8px;">📍 COORDENADAS DE LA BASE</p>
+            <a href="https://www.google.com/maps/search/?api=1&query=Ubicacion" class="btn btn-radar" target="_blank">VER EN GOOGLE MAPS</a>
+        </div>
     </div>
 
     <script>
-        const musica = document.getElementById('musica');
-        const spidey = document.getElementById('spidey-walker');
+        const music = document.getElementById('spidey-music');
+        const startBtn = document.getElementById('start-btn');
+        
+        // Simular carga rápida
+        setTimeout(() => {
+            document.getElementById('status').style.display = 'none';
+            startBtn.style.display = 'block';
+        }, 2000);
 
-        function iniciarCarga() {
-            // Activar Pantalla Completa si es posible
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            }
-
-            const status = document.getElementById('loading-status');
-            const bar = document.getElementById('bar');
-            document.getElementById('loader-box').style.display = 'block';
-            status.style.display = 'block';
-            
-            musica.volume = 0.6;
-            musica.play().catch(() => {});
-
-            let progreso = 0;
-            const intervalo = setInterval(() => {
-                progreso += 1;
-                bar.style.width = progreso + "%";
-                status.innerText = "DESCARGANDO INFORMACIÓN DE LA MISIÓN: " + progreso + "%";
-                
-                if (progreso >= 100) {
-                    clearInterval(intervalo);
-                    document.getElementById('intro-overlay').style.opacity = '0';
-                    setTimeout(() => { 
-                        document.getElementById('intro-overlay').style.display = 'none'; 
-                        initObserver(); 
-                        moverSpidey();
-                    }, 800);
-                }
-            }, 30);
-        }
-
-        function initObserver() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        entry.target.classList.remove('exit');
-                    } else {
-                        entry.target.classList.add('exit');
-                        entry.target.classList.remove('visible');
-                    }
+        startBtn.onclick = () => {
+            music.play();
+            document.getElementById('loading-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.querySelectorAll('.reveal').forEach((el, i) => {
+                    setTimeout(() => el.classList.add('visible'), i * 400);
                 });
-            }, { threshold: 0.3 });
-            document.querySelectorAll('section').forEach(sec => observer.observe(sec));
-        }
+            }, 500);
+        };
 
-        function moverSpidey() {
-            const x = Math.random() * (window.innerWidth - 80);
-            const y = Math.random() * (window.innerHeight - 80);
-            spidey.style.left = x + "px";
-            spidey.style.top = y + "px";
-            spidey.style.transform = `rotate(${(Math.random()-0.5)*60}deg)`;
-            setTimeout(moverSpidey, 3500);
-        }
+        // Cuenta regresiva
+        const target = new Date("Feb 21, 2026 14:00:00").getTime();
+        setInterval(() => {
+            const diff = target - new Date().getTime();
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById('timer').innerHTML = `${d}D ${h}H ${m}M ${s}S`;
+        }, 1000);
 
-        const canvas = document.getElementById('web-canvas-background');
+        // Fondo moléculas
+        const canvas = document.getElementById('canvas-molecules');
         const ctx = canvas.getContext('2d');
-        let nodes = [];
-        function resize() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            nodes = [];
-            for (let i = 0; i < 35; i++) {
-                nodes.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5, r: 1.5 });
+        let pts = [];
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        class Pt {
+            constructor() {
+                this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height;
+                this.vx = (Math.random()-0.5); this.vy = (Math.random()-0.5);
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if(this.x<0 || this.x>canvas.width) this.vx*=-1;
+                if(this.y<0 || this.y>canvas.height) this.vy*=-1;
             }
         }
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            nodes.forEach((n, i) => {
-                n.x += n.vx; n.y += n.vy;
-                if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
-                if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
-                ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2); ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fill();
-                for (let j = i + 1; j < nodes.length; j++) {
-                    const d = Math.hypot(n.x - nodes[j].x, n.y - nodes[j].y);
-                    if (d < 120) {
-                        ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(nodes[j].x, nodes[j].y);
-                        ctx.strokeStyle = `rgba(255,255,255,${0.25 - d/480})`; ctx.stroke();
+        for(let i=0; i<40; i++) pts.push(new Pt());
+        function anim() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            pts.forEach((p, i) => {
+                p.update();
+                for(let j=i+1; j<pts.length; j++) {
+                    const d = Math.hypot(p.x-pts[j].x, p.y-pts[j].y);
+                    if(d<110) {
+                        ctx.strokeStyle = `rgba(255,0,0,${1-d/110})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(pts[j].x,pts[j].y); ctx.stroke();
                     }
                 }
             });
-            requestAnimationFrame(draw);
+            requestAnimationFrame(anim);
         }
-        window.addEventListener('resize', resize); resize(); draw();
-
-        const targetDate = new Date("Feb 21, 2026 15:00:00").getTime();
-        setInterval(() => {
-            const d = targetDate - new Date().getTime();
-            if (d < 0) { document.getElementById('timer').innerText = "¡Misión Iniciada!"; return; }
-            const days = Math.floor(d/(1000*60*60*24)), h = Math.floor((d%(1000*60*60*24))/(1000*60*60)), m = Math.floor((d%(1000*60*60))/(1000*60)), s = Math.floor((d%(1000*60))/1000);
-            document.getElementById('timer').innerText = `${days}d ${h}h ${m}m ${s}s`;
-        }, 1000);
+        anim();
     </script>
 </body>
 </html>
